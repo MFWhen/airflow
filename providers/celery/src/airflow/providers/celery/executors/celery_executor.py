@@ -39,6 +39,9 @@ from deprecated import deprecated
 
 from airflow.exceptions import AirflowProviderDeprecationWarning
 from airflow.executors.base_executor import BaseExecutor
+from airflow.providers.celery.executors import (
+    celery_executor_utils as _celery_executor_utils,  # noqa: F401 # Needed to register Celery tasks at worker startup, see #63043
+)
 from airflow.providers.celery.version_compat import AIRFLOW_V_3_0_PLUS, AIRFLOW_V_3_2_PLUS
 from airflow.providers.common.compat.sdk import AirflowTaskTimeout, Stats
 from airflow.utils.state import TaskInstanceState
@@ -111,7 +114,7 @@ class CeleryExecutor(BaseExecutor):
         # Can be removed when minimum supported provider version is equal to the version of core airflow
         # which introduces multi-team configuration (3.2+).
         if not hasattr(self, "conf") or not hasattr(self.conf, "getint"):
-            from airflow.configuration import conf as global_conf
+            from airflow.providers.common.compat.sdk import conf as global_conf
 
             self.conf = global_conf
         # Also set team_name to None if it doesn't exist, since the Celery app creation expects it to be

@@ -27,6 +27,17 @@
 Changelog
 ---------
 
+13.0.1
+......
+
+Bug Fixes
+~~~~~~~~~
+
+* ``Fix PowerBIDatasetRefreshOperator to properly respect wait_for_completion flag (#62842)``
+
+.. Below changes are excluded from the changelog. Move them to
+   appropriate section above if needed. Do not delete the lines(!):
+
 13.0.0
 ......
 
@@ -713,7 +724,7 @@ Misc
 
 .. Below changes are excluded from the changelog. Move them to
    appropriate section above if needed. Do not delete the lines(!):
-   * ``Revert "refactor: Make sure xcoms work correctly in multi-threaded environmen…" (#40300)``
+   * ``Revert "refactor: Make sure xcoms work correctly in multi-threaded environment…" (#40300)``
    * ``refactor: Make sure xcoms work correctly in multi-threaded environment by taking the map_index into account (#40297)``
 
 10.1.1

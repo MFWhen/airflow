@@ -68,7 +68,7 @@ from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.orm import joinedload
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from airflow.configuration import conf
+from airflow.providers.common.compat.sdk import conf
 from airflow.providers.fab.auth_manager.models import (
     Action,
     Group,
@@ -396,7 +396,7 @@ class FabAirflowSecurityManagerOverride(AirflowSecurityManagerV2):
     def _get_authentik_jwks(self, jwks_url) -> dict:
         import requests
 
-        resp = requests.get(jwks_url)
+        resp = requests.get(jwks_url, timeout=30)
         if resp.status_code == 200:
             return resp.json()
         return {}
@@ -1299,6 +1299,13 @@ class FabAirflowSecurityManagerOverride(AirflowSecurityManagerV2):
                 self.session.commit()
                 log.info(const.LOGMSG_INF_SEC_ADD_ROLE, name)
                 return role
+            except IntegrityError:
+                self.session.rollback()
+                role = self.find_role(name)
+                if role is not None:
+                    log.info("Role '%s' was created by a concurrent worker, using existing record", name)
+                    return role
+                raise
             except Exception as e:
                 log.error(const.LOGMSG_ERR_SEC_ADD_ROLE, e)
                 self.session.rollback()
@@ -1570,6 +1577,13 @@ class FabAirflowSecurityManagerOverride(AirflowSecurityManagerV2):
                 self.session.add(action)
                 self.session.commit()
                 return action
+            except IntegrityError:
+                self.session.rollback()
+                action = self.get_action(name)
+                if action is not None:
+                    log.info("Action '%s' was created by a concurrent worker, using existing record", name)
+                    return action
+                raise
             except Exception as e:
                 log.error(const.LOGMSG_ERR_SEC_ADD_PERMISSION, e)
                 self.session.rollback()
@@ -1628,6 +1642,13 @@ class FabAirflowSecurityManagerOverride(AirflowSecurityManagerV2):
                 self.session.add(resource)
                 self.session.commit()
                 return resource
+            except IntegrityError:
+                self.session.rollback()
+                resource = self.get_resource(name)
+                if resource is not None:
+                    log.info("Resource '%s' was created by a concurrent worker, using existing record", name)
+                    return resource
+                raise
             except Exception as e:
                 log.error(const.LOGMSG_ERR_SEC_ADD_VIEWMENU, e)
                 self.session.rollback()
@@ -1698,6 +1719,17 @@ class FabAirflowSecurityManagerOverride(AirflowSecurityManagerV2):
             self.session.commit()
             log.info(const.LOGMSG_INF_SEC_ADD_PERMVIEW, perm)
             return perm
+        except IntegrityError:
+            self.session.rollback()
+            existing = self.get_permission(action_name, resource_name)
+            if existing is not None:
+                log.info(
+                    "Permission '%s'->'%s' was created by a concurrent worker, using existing record",
+                    action_name,
+                    resource_name,
+                )
+                return existing
+            raise
         except Exception as e:
             log.error(const.LOGMSG_ERR_SEC_ADD_PERMVIEW, e)
             self.session.rollback()
@@ -2326,7 +2358,7 @@ class FabAirflowSecurityManagerOverride(AirflowSecurityManagerV2):
     def _get_microsoft_jwks(self) -> list[dict[str, Any]]:
         import requests
 
-        return requests.get(MICROSOFT_KEY_SET_URL).json()
+        return requests.get(MICROSOFT_KEY_SET_URL, timeout=30).json()
 
     def _decode_and_validate_azure_jwt(self, id_token: str) -> dict[str, str]:
         verify_signature = self.oauth_remotes["azure"].client_kwargs.get("verify_signature", False)
