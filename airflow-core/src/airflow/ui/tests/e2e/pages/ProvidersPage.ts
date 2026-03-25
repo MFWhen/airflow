@@ -65,21 +65,9 @@ export class ProvidersPage extends BasePage {
 
   private async waitForTableData(): Promise<void> {
     // Wait for actual data links to appear (not skeleton loaders)
-    await this.page.waitForFunction(
-      () => {
-        const table = document.querySelector('[data-testid="table-list"]');
+    // Using locator-based waiting instead of page.waitForFunction()
+    const dataLinks = this.table.locator("tbody tr td a");
 
-        if (!table) {
-          return false;
-        }
-
-        // Check for actual links in tbody (real data, not skeleton)
-        const links = table.querySelectorAll("tbody tr td a");
-
-        return links.length > 0;
-      },
-      undefined,
-      { timeout: 30_000 },
-    );
+    await dataLinks.first().waitFor({ state: "visible", timeout: 30_000 });
   }
 }
