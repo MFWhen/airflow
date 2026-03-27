@@ -132,7 +132,7 @@ export class DagCalendarTab extends BasePage {
     const overlay = this.page.getByTestId("calendar-loading-overlay");
 
     try {
-      await overlay.waitFor({ state: "hidden", timeout: 10_000 });
+      await expect(overlay).toBeVisible({ timeout: 10_000 });
     } catch {
 
     }
@@ -141,6 +141,6 @@ export class DagCalendarTab extends BasePage {
 
     const cells = this.page.getByTestId("calendar-cell");
 
-    await cells.first().waitFor({ state: "attached", timeout: 120_000 });
+    await expect(cells.first()).toBeVisible({ timeout: 120_000 });
   }
 }
