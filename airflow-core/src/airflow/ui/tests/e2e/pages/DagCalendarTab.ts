@@ -137,19 +137,6 @@ export class DagCalendarTab extends BasePage {
 
     const cells = this.page.getByTestId("calendar-cell");
 
-<<<<<<< HEAD
-=======
-    try {
-      await expect(overlay).toBeVisible({ timeout: 10_000 });
-    } catch {
-
-    }
-
-    await this.page.getByTestId("calendar-grid").waitFor({ state: "visible", timeout: 120_000 });
-
-    const cells = this.page.getByTestId("calendar-cell");
-
->>>>>>> 4bce21a34c62fcdb5b920d6c7535a6f9684cf079
     await expect(cells.first()).toBeVisible({ timeout: 120_000 });
   }
 }
