@@ -82,10 +82,13 @@ export class DagCalendarTab extends BasePage {
     for (let i = 0; i < count; i++) {
       const cell = this.activeCells.nth(i);
 
-      await cell.hover();
-      await expect(this.tooltip).toBeVisible({ timeout: 20_000 });
+      let text = "";
 
-      const text = ((await this.tooltip.textContent()) ?? "").toLowerCase();
+      await expect(async () => {
+        await cell.hover({ force: true });
+        await expect(this.tooltip).toBeVisible({ timeout: 3000 });
+        text = ((await this.tooltip.textContent()) ?? "").toLowerCase();
+      }).toPass({ intervals: [500], timeout: 20_000 });
 
       if (text.includes("success")) states.push("success");
       if (text.includes("failed")) states.push("failed");
@@ -97,8 +100,13 @@ export class DagCalendarTab extends BasePage {
 
   public async navigateToCalendar(dagId: string) {
     await expect(async () => {
+<<<<<<< HEAD
       await this.page.goto(`/dags/${dagId}/calendar`);
       await expect(this.page.getByTestId("dag-calendar-root")).toBeVisible({ timeout: 5000 });
+=======
+      await this.safeGoto(`/dags/${dagId}/calendar`);
+      await this.page.getByTestId("dag-calendar-root").waitFor({ state: "visible", timeout: 5000 });
+>>>>>>> 4bce21a34c62fcdb5b920d6c7535a6f9684cf079
     }).toPass({ intervals: [2000], timeout: 60_000 });
     await this.waitForCalendarReady();
   }
@@ -129,6 +137,19 @@ export class DagCalendarTab extends BasePage {
 
     const cells = this.page.getByTestId("calendar-cell");
 
+<<<<<<< HEAD
+=======
+    try {
+      await expect(overlay).toBeVisible({ timeout: 10_000 });
+    } catch {
+
+    }
+
+    await this.page.getByTestId("calendar-grid").waitFor({ state: "visible", timeout: 120_000 });
+
+    const cells = this.page.getByTestId("calendar-cell");
+
+>>>>>>> 4bce21a34c62fcdb5b920d6c7535a6f9684cf079
     await expect(cells.first()).toBeVisible({ timeout: 120_000 });
   }
 }

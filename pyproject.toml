@@ -65,6 +65,10 @@ dependencies = [
 
 packages = []
 
+[project.scripts]
+# Definition allowing direct execution via `uvx apache-airflow ...`
+apache-airflow = "airflow.__main__:main"
+
 [project.optional-dependencies]
 # Automatically generated airflow optional dependencies (update_airflow_pyproject_toml.py)
 "all-core" = [
@@ -539,7 +543,7 @@ packages = []
     "apache-airflow-providers-amazon[s3fs]",
 ]
 "uv" = [
-    "uv>=0.10.12",
+    "uv>=0.11.1",
 ]
 
 [project.urls]
