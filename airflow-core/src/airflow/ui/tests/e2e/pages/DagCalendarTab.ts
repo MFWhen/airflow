@@ -120,7 +120,7 @@ export class DagCalendarTab extends BasePage {
   public async navigateToCalendar(dagId: string) {
     await expect(async () => {
       await this.safeGoto(`/dags/${dagId}/calendar`);
-    await expect(this.page.getByTestId("dag-calendar-root")).toBeVisible({ timeout: 5000 });
+      await expect(this.page.getByTestId("dag-calendar-root")).toBeVisible({ timeout: 5000 });
     }).toPass({ intervals: [2000], timeout: 60_000 });
     await this.waitForCalendarReady();
   }
@@ -149,6 +149,8 @@ export class DagCalendarTab extends BasePage {
     await expect(this.page.getByTestId("calendar-current-period")).toBeVisible({ timeout: 120_000 });
     await expect(this.page.getByTestId("calendar-grid")).toBeVisible({ timeout: 120_000 });
 
+    const overlay = this.page.getByTestId("calendar-loading-overlay");
+    await expect(overlay).toBeHidden({ timeout: 120_000 });
     const cells = this.page.getByTestId("calendar-cell");
 
     await expect(cells.first()).toBeVisible({ timeout: 120_000 });
