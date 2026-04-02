@@ -101,7 +101,7 @@ export class DagCalendarTab extends BasePage {
   public async navigateToCalendar(dagId: string) {
     await expect(async () => {
       await this.safeGoto(`/dags/${dagId}/calendar`);
-    await expect(this.page.getByTestId("dag-calendar-root")).toBeVisible({ timeout: 5000 });
+      await expect(this.page.getByTestId("dag-calendar-root")).toBeVisible({ timeout: 5000 });
     }).toPass({ intervals: [2000], timeout: 60_000 });
     await this.waitForCalendarReady();
   }
