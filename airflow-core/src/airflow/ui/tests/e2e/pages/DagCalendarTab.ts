@@ -50,21 +50,40 @@ export class DagCalendarTab extends BasePage {
 
     for (let i = 0; i < count; i++) {
       const cell = this.activeCells.nth(i);
-      const computedStyle = await cell.getAttribute("style");
+      const computedColor = await cell.evaluate((el: Element) => {
+        const getRenderableColor = (element: Element): string => {
+          const color = window.getComputedStyle(element).backgroundColor;
 
-      if (computedStyle) {
-        const bgColorMatch = computedStyle.match(/background-color\s*:\s*([^;]+)/);
+          return color && color !== "rgba(0, 0, 0, 0)" && color !== "transparent" ? color : "";
+        };
 
-        if (bgColorMatch) {
-          colors.push(bgColorMatch[1].trim());
-          continue;
+        const cellColor = getRenderableColor(el);
+
+        if (cellColor) {
+          return cellColor;
         }
-      }
 
-      const dataColor = await cell.getAttribute("data-bg-color");
+        const children = el.querySelectorAll("*");
 
-      if (dataColor) {
-        colors.push(dataColor);
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
+
+          if (!child) {
+            continue;
+          }
+
+          const childColor = getRenderableColor(child);
+
+          if (childColor) {
+            return childColor;
+          }
+        }
+
+        return "";
+      });
+
+      if (computedColor) {
+        colors.push(computedColor);
       }
     }
 
