@@ -63,15 +63,9 @@ export class DagCalendarTab extends BasePage {
           return cellColor;
         }
 
-        const children = el.querySelectorAll("*");
+        const children = [...el.querySelectorAll("*")];
 
-        for (let i = 0; i < children.length; i++) {
-          const child = children[i];
-
-          if (!child) {
-            continue;
-          }
-
+        for (const child of children) {
           const childColor = getRenderableColor(child);
 
           if (childColor) {
@@ -150,6 +144,7 @@ export class DagCalendarTab extends BasePage {
     await expect(this.page.getByTestId("calendar-grid")).toBeVisible({ timeout: 120_000 });
 
     const overlay = this.page.getByTestId("calendar-loading-overlay");
+
     await expect(overlay).toBeHidden({ timeout: 120_000 });
     const cells = this.page.getByTestId("calendar-cell");
 
